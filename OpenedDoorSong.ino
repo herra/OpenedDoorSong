@@ -15,9 +15,9 @@ uint sleepTime;
 HTTPClient http;
 
 int buzzerPin = 0;
-int tempo = 150;
-char notes[] = "eeeeeeegcde fffffeeeeddedg";
-int duration[] = {1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2};
+int tempo = 75;
+char notes[] = "eeeeeeegcdefffffeeeeeddedg";
+int duration[] = {2, 2, 4, 2, 2, 4, 2, 2, 3, 1, 8, 2, 2, 3, 1, 2, 2, 2, 1, 1, 2, 2, 2, 2, 4, 4};
 
 
 extern "C" {
@@ -39,7 +39,7 @@ void setup() {
   pinMode(buzzerPin, OUTPUT);
   pinMode(doorSensorPin, INPUT_PULLUP);
   Serial.begin(74880);  
-  WiFi.mode(WIFI_STA); //Default mode is AP_STA which creates Access Point and connects to wifi.
+  WiFi.mode(WIFI_OFF); //Default mode is AP_STA which creates Access Point and connects to wifi.
   
   wiFiMulti.addAP("SSID", "SSID_PASS");
   wiFiMulti.addAP("SSID2", "SSID_PASS");
@@ -55,13 +55,13 @@ void loop() {
   int currentDoorState = digitalRead(doorSensorPin);
     
   if (sessionId == NULL || sessionId == "") {
-    wakeUp();
-    login();
+    //wakeUp();
+    //login();
     delay(500);
   }
   if (prevDoorState < 0 || currentDoorState != prevDoorState || sendAnyway) {
     sendAnyway = false;
-    sendSensorData(currentDoorState);    
+    //sendSensorData(currentDoorState);    
     delay(500);
   }
   prevDoorState = currentDoorState;
@@ -70,11 +70,7 @@ void loop() {
     sleepTime = millis();    
 
     for (int i = 0; i < sizeof(notes)-1; i++) {
-      if (notes[i] == ' ') {        
-        delay(duration[i] * tempo);
-      } else {
-        playTheShit(notes[i], duration[i] * tempo);
-      }
+      playTheShit(notes[i], duration[i] * tempo);      
       delay((tempo*2)*duration[i]);
     }
   } else {
@@ -97,14 +93,14 @@ void loop() {
   
   if (wiFiMulti.run() != WL_CONNECTED) {
     sendAnyway = true;
-    wakeUp();
+    //wakeUp();
     Serial.println("WOKE UP");
   } 
 }
 
 void playTheShit(char note, int duration) {
   char notesName[] = { 'c', 'd', 'e', 'f', 'g' };
-  int tones[] = { 261, 293, 329, 349, 392 };
+  int tones[] = { 523, 587, 659, 698, 783 };
 
   for (int i = 0; i < sizeof(tones); i++) {    
     if (note == notesName[i]) {      
