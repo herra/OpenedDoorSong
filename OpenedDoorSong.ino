@@ -19,6 +19,7 @@ int songSwap = 1;
 
 struct Song {
   int tempo;
+  int length;
   char* notes;
   int* duration;    
 };
@@ -39,7 +40,7 @@ void reportConnectionToWifi();
 void login();
 void sendSensorData(int currentDoorState);
 void wakeUp();
-void playSong(Song song);
+void playSong(Song* song);
 
 
 void setup() {
@@ -54,22 +55,44 @@ void setup() {
   Serial.print("Device ChipId: ");  Serial.print(chipId); Serial.println("");
   Serial.print("PowerSupply: "); Serial.print(ESP.getVcc()); Serial.println("");
 
-  jingleBells.tempo = 75;
-  jingleBells.notes = "eeeeeeegcdefffffeeeeeddedg";
+  String notes;
+    
+  notes = "eeeeeeegcdefffffeeeeeddedg";
   int jingleBellsDurations [] = {2, 2, 4, 2, 2, 4, 2, 2, 3, 1, 8, 2, 2, 3, 1, 2, 2, 2, 1, 1, 2, 2, 2, 2, 4, 4};
-  jingleBells.duration = jingleBellsDurations;
+
+  jingleBells.length = notes.length() + 1;
+  jingleBells.notes = (char*)malloc(jingleBells.length);
+  jingleBells.duration = (int*)malloc(jingleBells.length * sizeof(int));
+  jingleBells.tempo = 75;
   
-  silentNight.tempo = 35;
-  silentNight.notes = "gagegageDDhCCgaaChagageaaChagageDDFDhCECgegfdc";
-  int silentNightDurations [] = {3,1,2,6,  3,1,2,6,  4,2,6,  4,2,6,  4,2,3,1,2,   3,1,2,6,  4,2,3,1,2,   3,1,2,6,   4,2,3,1,2,   6,6,  2,2,2, 3,1,2, 12};
-  silentNight.duration = silentNightDurations;
+  notes.toCharArray(jingleBells.notes, jingleBells.length); 
+  for (int i = 0; i < jingleBells.length; i++) {
+    jingleBells.duration[i] = jingleBellsDurations[i];
+  }
+  
+  //
+  notes = "gagegageDDhCCgaaChagageaaChagageDDFDhCECgegfdc";
+  int silentNightDurations [] = {3,1,2,6,  3,1,2,6,  4,2,6,  4,2,6,  4,2,3,1,2,   3,1,2,6,  4,2,3,1,2,   3,1,2,6,   4,2,3,1,2,   6,6,  2,2,2, 3,1,2, 12 };
+
+  silentNight.length = notes.length() + 1;
+  silentNight.notes = (char*)malloc(silentNight.length);
+  silentNight.duration = (int*)malloc(silentNight.length * sizeof(int));
+  silentNight.tempo = 118;
+  
+  
+  notes.toCharArray(silentNight.notes, silentNight.length);
+  for (int i = 0; i < silentNight.length; i++) {
+    silentNight.duration[i] = silentNightDurations[i];
+  }
 
   gpio_init(); // Initilize GPIO pins
   wifi_fpm_set_sleep_type(LIGHT_SLEEP_T);  
 }
 
 void loop() {  
-  delay(30000);
+  Serial.println('Starting');
+  delay(10000);
+  Serial.println('Starting');
   int currentDoorState = digitalRead(doorSensorPin);
     
 //  if (sessionId == NULL || sessionId == "") {
@@ -83,52 +106,57 @@ void loop() {
 //    delay(500);
 //  }
   
-  if (currentDoorState == 1) {
-      sleepTime = millis();        
+  //if (currentDoorState == 1) {
+      //sleepTime = millis();    
+
       
       if (songSwap == 1) {
-        playSong(jingleBells);      
+        playSong(&silentNight);       
         songSwap = 0;
       } else {
-        playSong(silentNight);
+        playSong(&jingleBells);
         songSwap = 1;
       }      
-  } 
+  //} 
 
   prevDoorState = currentDoorState;
   
-  if (millis() - sleepTime >= 9000 && currentDoorState == 0) {
-    Serial.println("Going to sleep");
-    delay(100);
-    wifi_station_disconnect();
-    wifi_set_opmode(NULL_MODE);
-    wifi_fpm_set_sleep_type(LIGHT_SLEEP_T);
-    wifi_fpm_open();    
-    gpio_pin_wakeup_enable(GPIO_ID_PIN(2), GPIO_PIN_INTR_HILEVEL);
-    wifi_fpm_do_sleep(0xFFFFFFF);
-    delay(200);    
-  }
+//  if (millis() - sleepTime >= 9000 && currentDoorState == 0) {
+//    Serial.println("Going to sleep");
+//    delay(100);
+//    wifi_station_disconnect();
+//    wifi_set_opmode(NULL_MODE);
+//    wifi_fpm_set_sleep_type(LIGHT_SLEEP_T);
+//    wifi_fpm_open();    
+//    gpio_pin_wakeup_enable(GPIO_ID_PIN(2), GPIO_PIN_INTR_HILEVEL);
+//    wifi_fpm_do_sleep(0xFFFFFFF);
+//    delay(200);    
+//  }
   Serial.println("Running");
   delay(500);
-  
-  if (wiFiMulti.run() != WL_CONNECTED) {
-    sendAnyway = true;
-    //wakeUp();
-    Serial.println("WOKE UP");
-  } 
+//  
+//  if (wiFiMulti.run() != WL_CONNECTED) {
+//    sendAnyway = true;
+//    //wakeUp();
+//    Serial.println("WOKE UP");
+//  } 
+  Serial.println("WOKE UP");
 }
 
-void playSong(Song song) {  
-  for (int j = 0; j < sizeof(song.notes)-1; j++) {
-    int toneDuration = (*(song.duration + j)) * song.tempo;
-    char note = *(song.notes + j);
-    Serial.print("td: "); Serial.print(toneDuration); Serial.print("   note: "+ note);
-    
+void playSong(Song* song) {  
+  Serial.println("Playing song");
+  
+  for (int j = 0; j < song->length - 1; j++) {
+    Serial.println(j);
+    int toneDuration = song->duration[j] * song->tempo;
+    char note = song->notes[j];
+    Serial.println("Note: " + String(note) + "  duration: " + String(toneDuration));
     for (int i = 0; i < sizeof(tones); i++) {    
       if (note == notesName[i]) {      
         tone(buzzerPin, tones[i], toneDuration);
       }
     }
+    
     delay(toneDuration * 2);
   }
 }
