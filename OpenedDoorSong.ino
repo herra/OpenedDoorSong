@@ -23,7 +23,7 @@ struct Song {
   char* notes;
   int* duration;
 };
-Song jingleBells, silentNight, bgChristmasSong;
+Song jingleBells, silentNight, bgChristmasSong, derTannenbaum;
 
 char notesName[] = { 'c', 'd', 'e', 'f', 'g', 'a', 'h', 'C', 'D', 'E', 'F' };
 int tones[] = { 523, 587, 659, 698, 783, 880, 987, 1046, 1174, 1318, 1396 };
@@ -99,6 +99,20 @@ void setup() {
     bgChristmasSong.duration[i] = bgChristmasSongDurations[i];
   }
 
+  notes = "cfffgaaaagahegfCCaDCChhhhgChhaacfffgaaaagahegf";
+  int derTannenbaumDurations [] = {4, 3,1,6,2, 3,1,6,2, 3,1,4,4, 4,4,4, 2,2,6,2, 2,2,6,2, 2,2,6,2, 2,2,4,4, 3,1,6,2, 3,1,6,2, 2,2,4,4, 4,4};
+
+  derTannenbaum.length = notes.length() + 1;
+  derTannenbaum.notes = (char*)malloc(derTannenbaum.length);
+  derTannenbaum.duration = (int*)malloc(derTannenbaum.length * sizeof(int));
+  derTannenbaum.tempo = 265;
+  
+  
+  notes.toCharArray(derTannenbaum.notes, derTannenbaum.length);
+  for (int i = 0; i < derTannenbaum.length; i++) {
+    derTannenbaum.duration[i] = derTannenbaumDurations[i];
+  }
+
   gpio_init(); // Initilize GPIO pins
   wifi_fpm_set_sleep_type(LIGHT_SLEEP_T);  
 }
@@ -126,6 +140,8 @@ void loop() {
         playSong(&jingleBells);        
       } else if(songSwap == 3) {
         playSong(&bgChristmasSong);
+      } else if(songSwap == 4){
+        playSong(&derTannenbaum);
         songSwap = 0;
       }
       songSwap += 1;
