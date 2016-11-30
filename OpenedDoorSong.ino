@@ -21,7 +21,7 @@ struct Song {
   int tempo;
   int length;
   char* notes;
-  int* duration;    
+  int* duration;
 };
 Song jingleBells, silentNight;
 
@@ -63,7 +63,7 @@ void setup() {
   jingleBells.length = notes.length() + 1;
   jingleBells.notes = (char*)malloc(jingleBells.length);
   jingleBells.duration = (int*)malloc(jingleBells.length * sizeof(int));
-  jingleBells.tempo = 75;
+  jingleBells.tempo = 150;  
   
   notes.toCharArray(jingleBells.notes, jingleBells.length); 
   for (int i = 0; i < jingleBells.length; i++) {
@@ -77,7 +77,7 @@ void setup() {
   silentNight.length = notes.length() + 1;
   silentNight.notes = (char*)malloc(silentNight.length);
   silentNight.duration = (int*)malloc(silentNight.length * sizeof(int));
-  silentNight.tempo = 118;
+  silentNight.tempo = 216;
   
   
   notes.toCharArray(silentNight.notes, silentNight.length);
@@ -157,7 +157,7 @@ void playSong(Song* song) {
       }
     }
     
-    delay(toneDuration * 2);
+    delay(toneDuration);
   }
 }
 
