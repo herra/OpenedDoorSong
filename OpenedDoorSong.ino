@@ -25,8 +25,10 @@ struct Song {
 };
 Song jingleBells, silentNight, bgChristmasSong, derTannenbaum;
 
-char notesName[] = { 'c', 'd', 'e', 'f', 'g', 'a', 'h', 'C', 'D', 'E', 'F' };
-int tones[] = { 523, 587, 659, 698, 783, 880, 987, 1046, 1174, 1318, 1396 };
+
+// r = Fis = 739.99 Hz
+char notesName[] = { 'c', 'd', 'e', 'f', 'r', 'g', 'a', 'h', 'C', 'D', 'E', 'F' };
+int tones[] = { 523, 587, 659, 698, 740, 783, 880, 987, 1046, 1174, 1318, 1396 };
 
 extern "C" {
   #include "gpio.h"
@@ -99,15 +101,14 @@ void setup() {
     bgChristmasSong.duration[i] = bgChristmasSongDurations[i];
   }
 
-  notes = "cfffgaaaagahegfCCaDCChhhhgChhaacfffgaaaagahegf";
+  notes = "dgggahhhhahCragDDhEDDCCCCaDCChhdgggahhhhahCrag";
   int derTannenbaumDurations [] = {4, 3,1,6,2, 3,1,6,2, 3,1,4,4, 4,4,4, 2,2,6,2, 2,2,6,2, 2,2,6,2, 2,2,4,4, 3,1,6,2, 3,1,6,2, 2,2,4,4, 4,4};
 
   derTannenbaum.length = notes.length() + 1;
   derTannenbaum.notes = (char*)malloc(derTannenbaum.length);
   derTannenbaum.duration = (int*)malloc(derTannenbaum.length * sizeof(int));
-  derTannenbaum.tempo = 216;
-  
-  
+  derTannenbaum.tempo = 185;
+
   notes.toCharArray(derTannenbaum.notes, derTannenbaum.length);
   for (int i = 0; i < derTannenbaum.length; i++) {
     derTannenbaum.duration[i] = derTannenbaumDurations[i];
