@@ -105,7 +105,7 @@ void setup() {
   derTannenbaum.length = notes.length() + 1;
   derTannenbaum.notes = (char*)malloc(derTannenbaum.length);
   derTannenbaum.duration = (int*)malloc(derTannenbaum.length * sizeof(int));
-  derTannenbaum.tempo = 265;
+  derTannenbaum.tempo = 216;
   
   
   notes.toCharArray(derTannenbaum.notes, derTannenbaum.length);
@@ -167,7 +167,7 @@ void playSong(Song* song) {
   Serial.println("Playing song");
   
   for (int j = 0; j < song->length - 1; j++) {
-    Serial.println(j);
+    //Serial.println(j);
     int toneDuration = song->duration[j] * song->tempo;
     char note = song->notes[j];
     //Serial.println("Note: " + String(note) + "  duration: " + String(toneDuration));
@@ -178,6 +178,10 @@ void playSong(Song* song) {
     }
     
     delay(toneDuration);
+
+    if (digitalRead(doorSensorPin) == 0) {
+      return;
+    }
   }
 }
 
