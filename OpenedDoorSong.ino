@@ -15,7 +15,7 @@ uint sleepTime;
 HTTPClient http;
 
 int buzzerPin = 0;
-int songSwap = 0;
+int songSwap = 1;
 
 struct Song {
   int tempo;
@@ -91,7 +91,7 @@ void setup() {
   bgChristmasSong.length = notes.length() + 1;
   bgChristmasSong.notes = (char*)malloc(bgChristmasSong.length);
   bgChristmasSong.duration = (int*)malloc(bgChristmasSong.length * sizeof(int));
-  bgChristmasSong.tempo = 216;
+  bgChristmasSong.tempo = 265;
   
   
   notes.toCharArray(bgChristmasSong.notes, bgChristmasSong.length);
@@ -105,8 +105,7 @@ void setup() {
 
 void loop() {  
   Serial.println('Starting');
-  delay(10000);
-  Serial.println('Starting');
+  delay(5000);  
   int currentDoorState = digitalRead(doorSensorPin);
     
 //  if (sessionId == NULL || sessionId == "") {
@@ -120,43 +119,31 @@ void loop() {
 //    delay(500);
 //  }
   
-  //if (currentDoorState == 1) {
-      //sleepTime = millis();    
-
-      
-      if (songSwap == 0) {
-        playSong(&silentNight);       
-        songSwap = 1;
-      } else if(songSwap == 1) {
-        playSong(&jingleBells);
-        songSwap = 2;
+  if (currentDoorState == 1) {            
+      if (songSwap == 1) {
+        playSong(&silentNight);               
       } else if(songSwap == 2) {
+        playSong(&jingleBells);        
+      } else if(songSwap == 3) {
         playSong(&bgChristmasSong);
         songSwap = 0;
       }
-  //} 
+      songSwap += 1;
+  } 
 
   prevDoorState = currentDoorState;
   
-//  if (millis() - sleepTime >= 9000 && currentDoorState == 0) {
-//    Serial.println("Going to sleep");
-//    delay(100);
-//    wifi_station_disconnect();
-//    wifi_set_opmode(NULL_MODE);
-//    wifi_fpm_set_sleep_type(LIGHT_SLEEP_T);
-//    wifi_fpm_open();    
-//    gpio_pin_wakeup_enable(GPIO_ID_PIN(2), GPIO_PIN_INTR_HILEVEL);
-//    wifi_fpm_do_sleep(0xFFFFFFF);
-//    delay(200);    
-//  }
-  Serial.println("Running");
-  delay(500);
-//  
-//  if (wiFiMulti.run() != WL_CONNECTED) {
-//    sendAnyway = true;
-//    //wakeUp();
-//    Serial.println("WOKE UP");
-//  } 
+  if (currentDoorState == 0) {
+    Serial.println("Going to sleep");
+    delay(100);
+    wifi_station_disconnect();
+    wifi_set_opmode(NULL_MODE);
+    wifi_fpm_set_sleep_type(LIGHT_SLEEP_T);
+    wifi_fpm_open();    
+    gpio_pin_wakeup_enable(GPIO_ID_PIN(2), GPIO_PIN_INTR_HILEVEL);
+    wifi_fpm_do_sleep(0xFFFFFFF);
+    delay(200);    
+  }
   Serial.println("WOKE UP");
 }
 
@@ -167,7 +154,7 @@ void playSong(Song* song) {
     Serial.println(j);
     int toneDuration = song->duration[j] * song->tempo;
     char note = song->notes[j];
-    Serial.println("Note: " + String(note) + "  duration: " + String(toneDuration));
+    //Serial.println("Note: " + String(note) + "  duration: " + String(toneDuration));
     for (int i = 0; i < sizeof(tones); i++) {    
       if (note == notesName[i]) {      
         tone(buzzerPin, tones[i], toneDuration);
