@@ -15,7 +15,7 @@ uint sleepTime;
 HTTPClient http;
 
 int buzzerPin = 0;
-int songSwap = 1;
+int songSwap = 0;
 
 struct Song {
   int tempo;
@@ -23,7 +23,7 @@ struct Song {
   char* notes;
   int* duration;
 };
-Song jingleBells, silentNight;
+Song jingleBells, silentNight, bgChristmasSong;
 
 char notesName[] = { 'c', 'd', 'e', 'f', 'g', 'a', 'h', 'C', 'D', 'E', 'F' };
 int tones[] = { 523, 587, 659, 698, 783, 880, 987, 1046, 1174, 1318, 1396 };
@@ -85,6 +85,20 @@ void setup() {
     silentNight.duration[i] = silentNightDurations[i];
   }
 
+  notes = "gggCgfedegggCgfededdefdeefgChagefedcddefdeefgChagefedc";
+  int bgChristmasSongDurations [] = {1,1,1, 2,1, 1,1,1, 3, 1,1,1, 2,1, 1,1,1, 3, 1,1,1, 2,1, 1,1,1, 3, 1,1,1, 2,1, 1,1,1, 3, 1,1,1, 2,1, 1,1,1, 3, 1,1,1, 2,1, 1,1,1, 3 };
+
+  bgChristmasSong.length = notes.length() + 1;
+  bgChristmasSong.notes = (char*)malloc(bgChristmasSong.length);
+  bgChristmasSong.duration = (int*)malloc(bgChristmasSong.length * sizeof(int));
+  bgChristmasSong.tempo = 216;
+  
+  
+  notes.toCharArray(bgChristmasSong.notes, bgChristmasSong.length);
+  for (int i = 0; i < bgChristmasSong.length; i++) {
+    bgChristmasSong.duration[i] = bgChristmasSongDurations[i];
+  }
+
   gpio_init(); // Initilize GPIO pins
   wifi_fpm_set_sleep_type(LIGHT_SLEEP_T);  
 }
@@ -110,13 +124,16 @@ void loop() {
       //sleepTime = millis();    
 
       
-      if (songSwap == 1) {
+      if (songSwap == 0) {
         playSong(&silentNight);       
-        songSwap = 0;
-      } else {
-        playSong(&jingleBells);
         songSwap = 1;
-      }      
+      } else if(songSwap == 1) {
+        playSong(&jingleBells);
+        songSwap = 2;
+      } else if(songSwap == 2) {
+        playSong(&bgChristmasSong);
+        songSwap = 0;
+      }
   //} 
 
   prevDoorState = currentDoorState;
